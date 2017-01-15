@@ -557,6 +557,15 @@ wait2(void)
                 p->name[0] = 0;
                 p->killed = 0;
                 p->state = UNUSED;
+
+                char* wtime=0;
+                char* rtime=0;
+                argptr(0,&wtime, sizeof(int));
+                argptr(1,&rtime, sizeof(int));
+
+                *rtime=p->rtime;
+                *wtime=(p->etime - p->ctime)-(p->rtime);
+
                 release(&ptable.lock);
                 return pid;
             }
