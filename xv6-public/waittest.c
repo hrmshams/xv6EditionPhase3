@@ -39,13 +39,11 @@ waittest(void)
     if(pid == 0)
     {
         foo();
-        getPerformanceData(&wTime,&rTime);
-        printf(1, "hi \n");
-        printf(1, "wTime: %d rTime: %d \n",wTime,rTime);
         exit();
     }
-    wait();
-
+    wait2(&wTime,&rTime);
+    printf(1, "hi \n");
+    printf(1, "wTime: %d rTime: %d \n",wTime,rTime);
 
 }
 int

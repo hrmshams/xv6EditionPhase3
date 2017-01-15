@@ -95,14 +95,28 @@ sys_getppid(void)
 {
   return proc->parent->pid;
 }
-int sys_getPerformanceData(void){
-    char* wtime;
-    char* rtime;
-    argstr(0, &wtime);
-    argstr(1, &rtime);
-    *wtime = ticks - proc->ctime - proc->rtime;
-    *rtime = proc->rtime;
-    return 0;
+//int sys_getPerformanceData(void){
+//    char* wtime;
+//    char* rtime;
+//    argstr(0, &wtime);
+//    argstr(1, &rtime);
+//    *wtime = ticks - proc->ctime - proc->rtime;
+//    *rtime = proc->rtime;
+//    return 0;
+//
+//}
+
+int sys_wait2(void) {
+	    return wait2();
+	}
+
+
+
+void sys_nice(){
+    if(proc->priority==3)
+        ;
+    else
+        proc->priority++;
 
 }
 

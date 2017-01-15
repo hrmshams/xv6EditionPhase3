@@ -6,6 +6,172 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+int a=1;//my code   0=round_robin  1=fif0     2=guaranteed     3=multi_level
+
+
+struct proc* queue1[MAX];
+int front1 = 0;
+int rear1 = -1;
+int itemCount1 = 0;
+
+struct proc* peek1() {
+    return queue1[front1];
+}
+
+bool isEmpty1() {
+    return itemCount1 == 0;
+}
+
+bool isFull1() {
+    return itemCount1 == MAX;
+}
+
+int size1() {
+    return itemCount1;
+}
+
+void insert1(struct proc* data) {
+
+    if(!isFull1()) {
+
+        if(rear1 == MAX-1) {
+            rear1 = -1;
+        }
+
+        queue1[++rear1] = data;
+        itemCount1++;
+    }
+}
+
+struct proc* removeData1() {
+    struct proc* data = queue1[front1++];
+
+    if(front1 == MAX) {
+        front1 = 0;
+    }
+
+    itemCount1--;
+    return data;
+}
+
+
+
+
+
+struct proc* queue2[MAX];
+int front2 = 0;
+int rear2 = -1;
+int itemCount2 = 0;
+
+struct proc* peek2() {
+    return queue2[front1];
+}
+
+bool isEmpty2() {
+    return itemCount2 == 0;
+}
+
+bool isFull2() {
+    return itemCount2 == MAX;
+}
+
+int size2() {
+    return itemCount2;
+}
+
+void insert2(struct proc* data) {
+
+    if(!isFull2()) {
+
+        if(rear2 == MAX-1) {
+            rear2 = -1;
+        }
+
+        queue2[++rear2] = data;
+        itemCount2++;
+    }
+}
+
+struct proc* removeData2() {
+    struct proc* data = queue2[front1++];
+
+    if(front2 == MAX) {
+        front2 = 0;
+    }
+
+    itemCount2--;
+    return data;
+}
+
+
+
+
+
+
+
+
+
+struct proc* queue3[MAX];
+int front3 = 0;
+int rear3 = -1;
+int itemCount3 = 0;
+
+struct proc* peek3() {
+    return queue3[front1];
+}
+
+bool isEmpty3() {
+    return itemCount3 == 0;
+}
+
+bool isFull3() {
+    return itemCount3 == MAX;
+}
+
+int size3() {
+    return itemCount3;
+}
+
+void insert3(struct proc* data) {
+
+    if(!isFull3()) {
+
+        if(rear3 == MAX-1) {
+            rear3 = -1;
+        }
+
+        queue3[++rear3] = data;
+        itemCount3++;
+    }
+}
+
+struct proc* removeData3() {
+    struct proc* data = queue3[front3++];
+
+    if(front3 == MAX) {
+        front3 = 0;
+    }
+
+    itemCount3--;
+    return data;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct {
   struct spinlock lock;
@@ -31,6 +197,91 @@ pinit(void)
 // If found, change state to EMBRYO and initialize
 // state required to run in the kernel.
 // Otherwise return 0.
+
+void add_to_q(){
+    struct proc *p;
+
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != RUNNABLE)
+            continue;
+        if(p->priority==1)
+            insert1(p);
+        else if(p->priority==2)
+            insert2(p);
+        else if(p->priority==3)
+            insert3(p);
+
+
+
+        }
+
+
+    }
+
+
+
+
+
+
+//}
+
+
+
+
+
+int getmin(void){
+
+    struct proc *p;
+    float min=10000;
+    int temppid=0;
+
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != RUNNABLE)
+            continue;
+        float w=(float)(p->rtime)/(float)(ticks-p->ctime);
+        if(w<min){
+            min=w;
+            temppid=p->pid;
+        }
+
+
+        }
+
+    return temppid;
+    }
+
+
+
+
+int getmin1(void){
+
+
+    struct proc *p;
+    float min=10000;
+    int temppid=0;
+
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != RUNNABLE || p->priority!=1)
+            continue;
+        float w=(float)(p->rtime)/(float)(ticks-p->ctime);
+        if(w<min){
+            min=w;
+            temppid=p->pid;
+        }
+
+
+    }
+
+    return temppid;
+
+
+}
+
+
+
 static struct proc*
 allocproc(void)
 {
@@ -111,6 +362,7 @@ userinit(void)
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
+   if(a==1)
   insert(p);//my code
 
   release(&ptable.lock);
@@ -176,6 +428,7 @@ fork(void)
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
+   if(a==1)
    insert(np);//my code
 
   release(&ptable.lock);
@@ -273,6 +526,58 @@ wait(void)
   }
 }
 
+
+
+
+
+
+
+int
+wait2(void)
+{
+    struct proc *p;
+    int havekids, pid;
+
+    acquire(&ptable.lock);
+    for(;;){
+        // Scan through table looking for exited children.
+        havekids = 0;
+        for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+            if(p->parent != proc)
+                continue;
+            havekids = 1;
+            if(p->state == ZOMBIE){
+                // Found one.
+                pid = p->pid;
+                kfree(p->kstack);
+                p->kstack = 0;
+                freevm(p->pgdir);
+                p->pid = 0;
+                p->parent = 0;
+                p->name[0] = 0;
+                p->killed = 0;
+                p->state = UNUSED;
+                release(&ptable.lock);
+                return pid;
+            }
+        }
+
+        // No point waiting if we don't have any children.
+        if(!havekids || proc->killed){
+            release(&ptable.lock);
+            return -1;
+        }
+
+        // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+        sleep(proc, &ptable.lock);  //DOC: wait-sleep
+    }
+}
+
+
+
+
+
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -287,44 +592,94 @@ scheduler(void)
 
   struct proc *p;
 
-  for(;;){
-    // Enable interrupts on this processor.
-    sti();
+  for(;;) {
+      // Enable interrupts on this processor.
+      int temp1=0;
+      if(a==3){
+           temp1=getmin1();
 
-    // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-        if (p->state != RUNNABLE)
-            continue;
-        if (!isEmpty() && p!= peek()) {//my code
-            continue;
-        }
+      }
+
+      sti();
+      int temp=getmin();
 
 
+      // Loop over process table looking for process to run.
+      acquire(&ptable.lock);
+      for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+          if (p->state != RUNNABLE)
+              continue;
+
+
+          if(a==1) {//my code
+
+              if (!isEmpty() && p != peek()) {//my code
+                  continue;
+              }
+
+          }
+
+          if(a==2){//my code
+
+              if(p->pid!=temp)
+                  continue;
+
+
+
+          }
+
+
+          if(a==3){//my code
+
+              if(!isEmpty1()){
+                  if(p->pid!=temp1)
+                      continue;
+
+
+
+
+              }
+              else if(!isEmpty2()){
+                  if(p!=peek2())
+                      continue;
+
+
+              }
+              else
+                  ;
 
 
 
 
 
 
-        cprintf("salam");
+
+          }
 
 
-        // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-      removeData();//my code
-      swtch(&cpu->scheduler, p->context);
-      switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      proc = 0;
-    }
-    release(&ptable.lock);
+
+          cprintf("salam");
+
+
+          // Switch to chosen process.  It is the process's job
+          // to release ptable.lock and then reacquire it
+          // before jumping back to us.
+          proc = p;
+          switchuvm(p);
+          p->state = RUNNING;
+          removeData();//my code
+          swtch(&cpu->scheduler, p->context);
+          switchkvm();
+
+          // Process is done running for now.
+          // It should have changed its p->state before coming back.
+          proc = 0;
+      }
+      release(&ptable.lock);
+
+
+
 
   }
 }
@@ -360,6 +715,7 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
+  if(a==1)
   insert(proc);//my code
   sched();
   release(&ptable.lock);
@@ -434,6 +790,7 @@ wakeup1(void *chan)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
+      if(a==1)
       insert(p); } //my code
 
 
@@ -465,6 +822,7 @@ kill(int pid)
       // Wake process from sleep if necessary.
       if(p->state == SLEEPING){
         p->state = RUNNABLE;
+        if(a==1)
         insert(p);}//my code
       release(&ptable.lock);
       return 0;

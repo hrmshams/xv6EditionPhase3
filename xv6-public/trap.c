@@ -10,6 +10,9 @@
 
 
 
+
+
+
 struct proc* queue[MAX];
 int front = 0;
 int rear = -1;
@@ -102,7 +105,8 @@ trap(struct trapframe *tf)
     if(cpunum() == 0){
       acquire(&tickslock);
       ticks++;
-       co++;
+       if(a==0||a==1)
+            co++;
       if(proc && proc->state==RUNNING)//my code
           proc->rtime++;//my code
       wakeup(&ticks);
@@ -156,11 +160,19 @@ trap(struct trapframe *tf)
 
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
-  if(proc && proc->state == RUNNING && tf->trapno == T_IRQ0+IRQ_TIMER&&co==QUANTA){
+  if(proc && proc->state == RUNNING && tf->trapno == T_IRQ0+IRQ_TIMER){//&&co==QUANTA){
+      if(a==0||a==1){
+          if(co==QUANTA){
+              co=0;
 
-      co=0;
+              yield();
 
-      yield();
+
+          }
+
+      }
+      else
+         yield();
 
   }
 
