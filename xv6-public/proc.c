@@ -668,7 +668,7 @@ scheduler(void)
 
 
 
-          cprintf("salam");
+          //cprintf("salam");
 
 
           // Switch to chosen process.  It is the process's job

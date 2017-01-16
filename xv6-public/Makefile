@@ -176,6 +176,7 @@ UPROGS=\
 	_getppidTest\
 	_waittest\
 	_RRsanity\
+	_GSanity\
 
 
 fs.img: mkfs README $(UPROGS)
@@ -249,6 +250,7 @@ EXTRA=\
 	getppidTest.c\
 	waittest.c\
 	RRsanity.c\
+	GSanity.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\

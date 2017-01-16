@@ -13,7 +13,6 @@ void childProcess()
 
 int main(void)
 {
-   int childProcessEndedCount = 0;
    for (int i=0 ; i<10 ; i++)
    {
       int result = fork();
@@ -24,10 +23,7 @@ int main(void)
       }
       else if (result == 0)
       {
-	printf(1, "child ended count0 : %d\n" , childProcessEndedCount);
          childProcess();
-	 childProcessEndedCount ++ ;
-	printf(1, "child ended count2 : %d\n" , childProcessEndedCount);
 	 exit();
       }
       else
