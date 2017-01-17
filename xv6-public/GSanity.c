@@ -30,6 +30,9 @@ int main(void)
       {
 	 processLoop();
       }
+      
+      int a,b;
+      wait2(&a,&b);
       exit();
 }
 
