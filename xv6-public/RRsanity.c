@@ -15,13 +15,13 @@ int main(void)
 {
    for (int i=0 ; i<10 ; i++)
    {
-      int result = fork();
+      int forkresult = fork();
       
-      if (result == -1)
+      if (forkresult == -1)
       {
          printf(1 ,"fork failed!");
       }
-      else if (result == 0)
+      else if (forkresult == 0)
       {
          childProcess();
 	 exit();
