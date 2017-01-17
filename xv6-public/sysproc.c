@@ -193,8 +193,29 @@ void sys_nice(){
                 }
 
 
+            }
 
 
+
+        }
+      else  if(proc->priority==3){
+            bool q=true;
+            struct proc* y;
+            while(q){
+                y=removeData2();
+                if(y->pid==proc->pid){
+                    insert3(y);
+                    while (!isEmpty4()){
+                        insert(removeData4());
+                    }
+                    q=false;
+
+
+
+                }
+                else{
+                    insert4(y);
+                }
 
 
             }
@@ -207,6 +228,13 @@ void sys_nice(){
 
 
 
+
     }
 
 }
+
+
+int  sys_sth(void)
+	{
+	  return sth();
+	}

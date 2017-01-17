@@ -26,6 +26,7 @@ int uptime(void);
 int getppid(void);
 int wait2(int*, int*);
 void nice(void);
+int sth(void);
 
 
 // ulib.c

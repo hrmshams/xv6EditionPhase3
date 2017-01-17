@@ -6,7 +6,24 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
-int a=2;//my code   0=round_robin  1=fif0     2=guaranteed     3=multi_level
+int a=1;//my code   0=round_robin  1=fif0     2=guaranteed     3=multi_level
+
+
+int test3flag = 0;
+
+
+
+int
+sth(void)
+{
+    if(test3flag == 0){
+        test3flag = 1;
+    } else {
+        test3flag = 0;
+    }
+    return test3flag;
+}
+
 
 
 struct proc* queue1[MAX];
@@ -198,26 +215,26 @@ pinit(void)
 // state required to run in the kernel.
 // Otherwise return 0.
 
-void add_to_q(){
-    struct proc *p;
-
-
-    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-        if (p->state != RUNNABLE)
-            continue;
-        if(p->priority==1)
-            insert1(p);
-        else if(p->priority==2)
-            insert2(p);
-        else if(p->priority==3)
-            insert3(p);
-
-
-
-        }
-
-
-    }
+//void add_to_q(){
+//    struct proc *p;
+//
+//
+//    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+//        if (p->state != RUNNABLE)
+//            continue;
+//        if(p->priority==1)
+//            insert1(p);
+//        else if(p->priority==2)
+//            insert2(p);
+//        else if(p->priority==3)
+//            insert3(p);
+//
+//
+//
+//        }
+//
+//
+//    }
 
 
 
@@ -323,6 +340,7 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+  p->priority=1;
   p->ctime=ticks;//my code
   p->rtime=0;//my code
   return p;
@@ -351,6 +369,7 @@ userinit(void)
   p->tf->eflags = FL_IF;
   p->tf->esp = PGSIZE;
   p->tf->eip = 0;  // beginning of initcode.S
+
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
@@ -691,8 +710,15 @@ scheduler(void)
           proc = p;
           switchuvm(p);
           p->state = RUNNING;
-          if(a==1)
+          if(a==1){
           removeData();
+
+              if(test3flag == 1){
+                  cprintf("Process %d switched.\n", proc->pid);
+              }
+
+
+          }
           if(a==3){
               if(p->priority==3)
                   removeData1();
@@ -700,6 +726,11 @@ scheduler(void)
                   removeData2();
               else
                   removeData3();
+
+
+
+
+
           }
           swtch(&cpu->scheduler, p->context);
           switchkvm();

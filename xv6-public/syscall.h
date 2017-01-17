@@ -23,4 +23,5 @@
 #define SYS_getppid 22
 #define SYS_wait2 23
 #define  SYS_nice 24
+#define SYS_sth 25
 
