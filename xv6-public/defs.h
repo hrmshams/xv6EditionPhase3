@@ -120,6 +120,33 @@ int             wait2(void);
 void            wakeup(void*);
 void            yield(void);
 
+extern struct proc*     queue1[];
+extern struct proc*              peek1(void);
+extern bool              isEmpty1(void);
+extern bool            isFull1(void) ;
+extern int       size1(void);
+extern void      insert1(struct proc* data);
+extern struct proc* removeData1(void);
+
+extern struct proc*     queue2[];
+extern struct proc*              peek2(void);
+extern bool              isEmpty2(void);
+extern bool            isFull2(void) ;
+extern int       size2(void);
+extern void      insert2(struct proc* data);
+extern struct proc* removeData2(void);
+
+
+extern struct proc*     queue3[];
+extern struct proc*              peek3(void);
+extern bool              isEmpty3(void);
+extern bool            isFull3(void) ;
+extern int       size3(void);
+extern void      insert3(struct proc* data);
+extern struct proc* removeData3(void);
+
+
+
 // swtch.S
 void            swtch(struct context**, struct context*);
 

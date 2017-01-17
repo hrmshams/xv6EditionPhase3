@@ -6,7 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
-int a=1;//my code   0=round_robin  1=fif0     2=guaranteed     3=multi_level
+int a=2;//my code   0=round_robin  1=fif0     2=guaranteed     3=multi_level
 
 
 struct proc* queue1[MAX];
@@ -364,6 +364,14 @@ userinit(void)
   p->state = RUNNABLE;
    if(a==1)
   insert(p);//my code
+  if(a==3){
+      if(p->priority==3)
+          insert3(p);
+      else if(p->priority==2)
+          insert2(p);
+      else
+          insert1(p);
+  }
 
   release(&ptable.lock);
 }
@@ -430,8 +438,17 @@ fork(void)
   np->state = RUNNABLE;
    if(a==1)
    insert(np);//my code
+    if(a==3){
+        if(np->priority==3)
+            insert3(np);
+        else if(np->priority==2)
+            insert2(np);
+        else
+            insert1(np);
+    }
 
-  release(&ptable.lock);
+
+    release(&ptable.lock);
 
   return pid;
 }
@@ -644,9 +661,6 @@ scheduler(void)
                   if(p->pid!=temp1)
                       continue;
 
-
-
-
               }
               else if(!isEmpty2()){
                   if(p!=peek2())
@@ -677,7 +691,16 @@ scheduler(void)
           proc = p;
           switchuvm(p);
           p->state = RUNNING;
-          removeData();//my code
+          if(a==1)
+          removeData();
+          if(a==3){
+              if(p->priority==3)
+                  removeData1();
+              else if(p->priority==2)
+                  removeData2();
+              else
+                  removeData3();
+          }
           swtch(&cpu->scheduler, p->context);
           switchkvm();
 
@@ -726,7 +749,16 @@ yield(void)
   proc->state = RUNNABLE;
   if(a==1)
   insert(proc);//my code
-  sched();
+    if(a==3){
+        if(proc->priority==3)
+            insert3(proc);
+        else if(proc->priority==2)
+            insert2(proc);
+        else
+            insert1(proc);
+    }
+
+    sched();
   release(&ptable.lock);
 }
 
@@ -800,7 +832,17 @@ wakeup1(void *chan)
     if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
       if(a==1)
-      insert(p); } //my code
+      insert(p);
+    if(a==3){
+        if(p->priority==3)
+            insert3(p);
+        else if(p->priority==2)
+            insert2(p);
+        else
+            insert1(p);
+    }
+    } //my code
+
 
 
 
@@ -832,7 +874,18 @@ kill(int pid)
       if(p->state == SLEEPING){
         p->state = RUNNABLE;
         if(a==1)
-        insert(p);}//my code
+        insert(p);
+          if(a==3){
+              if(p->priority==3)
+                  insert3(p);
+              else if(p->priority==2)
+                  insert2(p);
+              else
+                  insert1(p);
+          }
+
+
+      }//my code
       release(&ptable.lock);
       return 0;
     }
@@ -877,4 +930,5 @@ procdump(void)
     cprintf("\n");
   }
 }
+
 

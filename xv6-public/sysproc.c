@@ -7,6 +7,59 @@
 #include "mmu.h"
 #include "proc.h"
 
+
+
+
+
+
+struct proc* queue4[MAX];
+int front4 = 0;
+int rear4 = -1;
+int itemCount4 = 0;
+
+struct proc* peek4() {
+    return queue4[front4];
+}
+
+bool isEmpty4() {
+    return itemCount4 == 0;
+}
+
+bool isFull4() {
+    return itemCount4 == MAX;
+}
+
+int size4() {
+    return itemCount4;
+}
+
+void insert4(struct proc* data) {
+
+    if(!isFull4()) {
+
+        if(rear4 == MAX-1) {
+            rear4 = -1;
+        }
+
+        queue4[++rear4] = data;
+        itemCount4++;
+    }
+}
+
+struct proc* removeData4() {
+    struct proc* data = queue4[front4++];
+
+    if(front4 == MAX) {
+        front4 = 0;
+    }
+
+    itemCount4--;
+    return data;
+}
+
+
+
+
 int
 sys_fork(void)
 {
@@ -113,11 +166,47 @@ int sys_wait2(void) {
 
 
 void sys_nice(){
+
     if(proc->priority==3)
+
+
         ;
-    else
+    else {
         proc->priority++;
+        if(proc->priority==2){
+            bool q=true;
+            struct proc* y;
+            while(q){
+                y=removeData1();
+                if(y->pid==proc->pid){
+                    insert2(y);
+                    while (!isEmpty4()){
+                        insert(removeData4());
+                    }
+                    q=false;
+
+
+
+                }
+                else{
+                    insert4(y);
+                }
+
+
+
+
+
+
+            }
+
+
+
+        }
+
+
+
+
+
+    }
 
 }
-
-

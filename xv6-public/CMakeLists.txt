@@ -73,6 +73,6 @@ set(SOURCE_FILES
     vm.c
     wc.c
     x86.h
-    zombie.c waittest.c)
+    zombie.c waittest.c FRRsanity.c)
 
 add_executable(xv6_public ${SOURCE_FILES})
